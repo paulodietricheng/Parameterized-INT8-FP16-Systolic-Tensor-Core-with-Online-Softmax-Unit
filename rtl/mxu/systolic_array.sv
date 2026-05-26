@@ -1,0 +1,77 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 05/20/2026 05:20:36 PM
+// Design Name: 
+// Module Name: systolic_array
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+import tpu_pkg::*;
+
+module systolic_array(
+    // Signals
+    input  clk, rst_n,
+    
+    // From Systolic Controll
+    input logic array_en,
+    input logic clr_acc_n,
+    
+    // Input operands
+    input  operand_t a_j_skewed [0:N-1],
+    input  operand_t b_i_skewed [0:N-1],
+     
+    // Output accumulator
+    output accumulator_t c [0:N-1][0:N-1]
+);
+
+    // Interconnect fabric
+    operand_t inter_cols [0:N-1][0:N];
+    operand_t inter_rows [0:N][0:N-1];
+
+    // Input data to the fabric
+    always_comb begin        
+        // Populate rows
+        for(int j = 0; j < N; j++) begin
+            inter_cols [j][0] = a_j_skewed[j];
+        end
+        
+        // Populate columns
+        for(int i = 0; i < N; i++) begin
+            inter_rows [0][i] = b_i_skewed[i];
+        end
+    end
+
+    // Generate and connect PEs
+    generate
+        genvar i, j;
+        for (j = 0; j < N; j++) begin : GEN_COL
+            for (i = 0; i < N; i++) begin : GEN_ROW                
+                pe U_PE(
+                    .clk  (clk),
+                    .rst_n      (rst_n),
+                    .clr_acc_n(clr_acc_n),
+                    .array_en   (array_en),
+                    .in_a (inter_cols[j][i]),
+                    .in_b (inter_rows[j][i]),
+                    .out_a(inter_cols[j][i+1]),
+                    .out_b(inter_rows[j+1][i]),
+                    .c    (c[j][i])
+                );
+            end
+        end
+    endgenerate
+
+endmodule
