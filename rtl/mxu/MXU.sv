@@ -87,7 +87,37 @@ module MXU(
         .d_valid  (d_valid)
     );
     
-    //-----------------------------------
+    //---------------------------------
     // Operand Skewer initialization
     //-----------------------------------
+    
+    // Internal outputs
+    operand_t a_j_skewed [0:N-1];
+    operand_t b_i_skewed [0:N-1];
+    
+    operand_skewer U_OPS (
+        .clk       (clk),
+        .rst_n     (rst_n),
+        .a_j       (a_j),
+        .b_i       (b_i),
+        .d_valid   (d_valid),
+        .a_j_skewed(a_j_skewed),
+        .b_i_skewed(b_i_skewed),
+        .pe00_valid(pe00_valid)
+    );
+    
+    //-----------------------------------
+    // Systolic Array initialization
+    //-----------------------------------
+    
+    systolic_array U_SA (
+        .clk       (clk),
+        .rst_n     (rst_n),
+        .array_en  (array_en),
+        .clr_acc_n (clr_acc_n),
+        .a_j_skewed(a_j_skewed),
+        .b_i_skewed(b_i_skewed),
+        .c         (c)
+    );
+
 endmodule
