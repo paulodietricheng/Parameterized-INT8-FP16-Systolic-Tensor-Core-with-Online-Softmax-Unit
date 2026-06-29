@@ -54,24 +54,20 @@ module mxu_control(
 
     mxu_state_t curr_state;
 
-    logic token_seen;
     logic first_pe_token;
     
-    assign first_pe_token = pe00_valid && !token_seen && ((curr_state == m_STREAM) || (curr_state == m_DRAIN));
+    assign first_pe_token = pe00_valid && ((curr_state == m_STREAM) || (curr_state == m_DRAIN));
 
     // RESULT READY SHIFT PIPE
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             result_ready <= '0;
-            token_seen <= 1'b0;
         end
         else if (curr_state == m_IDLE || curr_state == m_CLEAR || curr_state == m_DONE) begin
             result_ready <= '0;
-            token_seen <= 1'b0;
         end
         else if (curr_state == m_STREAM || curr_state == m_DRAIN) begin
             result_ready <= {result_ready[RESULT_LAT-2:0], first_pe_token};
-            token_seen <= 1'b1;
         end
     end
 
