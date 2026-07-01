@@ -45,13 +45,7 @@ module operand_handler (
     assign dim_to_fetch = dim_idx;
     
     // Assert the validity of the data
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            d_valid <= 1'b0;
-        end else begin
-            d_valid <= dim_valid;
-        end
-    end
+    assign d_valid = dim_valid;
     
     // slice incoming vectors / output 0 for invalid dimentions
     generate
