@@ -77,10 +77,9 @@ module tb_MXU;
     // This models a zero-latency SRAM read; dim_to_fetch is registered
     // one cycle after dim_valid inside operand_handler/mxu_control, so
     // in_a/in_b naturally land correctly aligned with d_valid.
-    always_comb begin
-        in_a = pack_a_column(int'(dim_to_fetch));
-        in_b = pack_b_row(int'(dim_to_fetch));
-    end
+    assign in_a = pack_a_column(dim_to_fetch);
+    assign in_b = pack_b_row(dim_to_fetch);
+
     // =====================================================
     // DUT IO DRIVE TASKS
     // =====================================================
