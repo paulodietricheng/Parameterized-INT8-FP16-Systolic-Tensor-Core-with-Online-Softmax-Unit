@@ -21,31 +21,49 @@
 
 import tpu_pkg::*;
 
-module pe(
+module pe (
     input  logic clk, rst_n, clr_acc_n,
 
     input  operand_t in_a, in_b,
-    input logic array_en,
+    input  logic array_en,
     
     output operand_t out_a, out_b,   
     output accumulator_t c
 );
 
-    // Registers
+    // Input Pipeline Stage
     operand_t areg, breg;
-    always_ff @(posedge clk or negedge clr_acc_n or negedge rst_n) begin
-        if (!clr_acc_n || !rst_n) begin
-            c <= '0;
+    
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             areg <= '0;
             breg <= '0;
         end else if (array_en) begin
-            c  <= c + (areg * breg);  
             areg <= in_a;
             breg <= in_b;
         end
     end
     
+    // Pass registered outputs to next processing elements
     assign out_a = areg;
     assign out_b = breg;
+
+    // Dedicated MAC Core Stage
+    (* use_dsp = "yes", multstyle = "dsp" *) 
+    accumulator_t acc_reg;
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            acc_reg <= '0;
+        end else if (array_en) begin
+            if (!clr_acc_n) begin
+                acc_reg <= '0; 
+            end else begin
+                acc_reg <= acc_reg + (areg * breg);
+            end
+        end
+    end
+
+    assign c = acc_reg;
     
 endmodule
