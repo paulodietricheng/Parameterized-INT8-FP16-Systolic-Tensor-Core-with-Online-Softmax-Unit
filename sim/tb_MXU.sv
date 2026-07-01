@@ -73,13 +73,16 @@ module tb_MXU;
             pack_b_row = packed_word;
         end
     endfunction
-    // Combinationally serve whatever dim_to_fetch currently requests.
-    // This models a zero-latency SRAM read; dim_to_fetch is registered
-    // one cycle after dim_valid inside operand_handler/mxu_control, so
-    // in_a/in_b naturally land correctly aligned with d_valid.
-    assign in_a = pack_a_column(dim_to_fetch);
-    assign in_b = pack_b_row(dim_to_fetch);
-
+    // Serve whatever dim_to_fetch currently requests. Simulate 1 cycle read BRAM.
+    logic [OPERAND_BUS_W-1:0] a_reg, b_reg;
+    
+    always_ff @(posedge clk) begin
+        a_reg <= pack_a_column(dim_to_fetch);
+        b_reg <= pack_b_row(dim_to_fetch);
+    end
+    
+    assign in_a = a_reg;
+    assign in_b = b_reg;
     // =====================================================
     // DUT IO DRIVE TASKS
     // =====================================================
