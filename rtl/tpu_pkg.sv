@@ -39,6 +39,9 @@ package tpu_pkg;
     
     // Words per SRAM address.
     localparam WPA = SRAM_WORD_W / OPERAND_W;
+    
+    // Depth of pingpong buffer
+    localparam ADDR_W = $clog2(2048);
 
     // Width of a full vector sent into the operand handler.
     localparam OPERAND_BUS_W = N * OPERAND_W;
@@ -51,7 +54,6 @@ package tpu_pkg;
 
     // Total result latency from first PE token to final valid result.
     localparam RESULT_LAT = 2*N + D_MODEL - 2 + DSP_LAT;
-
 
     // Scalar data types
     typedef logic signed [OPERAND_W-1:0] operand_t;

@@ -28,7 +28,7 @@ module operand_handler (
     input  dim_t dim_idx,
     input  logic dim_valid,
     
-    // From SRAM Word Packer
+    // From SRAM
     input  operand_bus_t in_a,
     input  operand_bus_t in_b,
     
